@@ -1,0 +1,77 @@
+- name: Configure plan rating options
+  become: yes
+  hosts: all
+  vars:
+    node_exporter_version: 1.1.2
+
+  tasks:
+    - name: Install required packages
+      apt:
+        update_cache: yes
+        pkg:
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add apt repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install docker and docker-compose
+      apt:
+        pkg:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-compose-plugin
+        state: latest
+        update_cache: true
+
+    - name: Start docker service
+      service:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Download node exporter
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+        dest: /tmp
+
+    - name: Unpack node exporter
+      unarchive:
+        remote_src: yes
+        src: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+        dest: /tmp
+
+    - name: Copy node exporter to /usr/local/bin
+      copy:
+        src: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter
+        dest: /usr/local/bin/node_exporter
+        remote_src: yes
+        mode: 0755
+
+    - name: Copy node exporter init file to systemd
+      copy:
+        src: templates/node_exporter.service
+        dest: /etc/systemd/system/node_exporter.service
+        remote_src: yes
+        mode: 0600
+
+    - name: Enable node_exporter service
+      systemd:
+        daemon_reload: yes
+        enabled: yes
+        state: started
+        name: node_exporter.service
+
+    - name: Deploy prometheus and grafana docker comtainers
+      shell:
+        cmd: docker compose up -d
