@@ -75,3 +75,7 @@
     - name: Deploy prometheus and grafana docker comtainers
       shell:
         cmd: docker compose up -d
+
+    - name: Allow vagrant user to manage docker
+      shell:
+        cmd: usermod -aG docker vagrant

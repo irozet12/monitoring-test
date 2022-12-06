@@ -2,8 +2,9 @@ version: '3'
 
 services:
   prometheus:
-    image: prom/prometheus:v2.30.3
+    image: prom/prometheus:v2.40.5
     container_name: prometheus
+    network_mode: "host"
     expose:
       - 9090
     volumes:
@@ -11,8 +12,9 @@ services:
       - prometheus_data:/prometheus
 
   grafana:
-    image: grafana/grafana:6.7.2
+    image: grafana/grafana:9.2.3
     container_name: grafana
+    network_mode: "host"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana:/etc/grafana/provisioning
