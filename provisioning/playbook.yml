@@ -2,7 +2,11 @@
   become: yes
   hosts: all
   vars:
-    node_exporter_version: 1.1.2
+    node_exporter_version: "{{ node_exporter_ver | default('1.1.2') }}"
+    prometheus_version: "{{ prometheus_ver | default('v2.40.5') }}"
+    grafana_version: "{{ grafana_ver | default('9.2.3') }}"
+    grafana_user: "{{ grafana_admin | default('admin') }}"
+    grafana_password: "{{ grafana_passwd | default('admin') }}"
 
   tasks:
     - name: Install required packages
@@ -75,6 +79,11 @@
     - name: Deploy prometheus and grafana docker comtainers
       shell:
         cmd: docker compose up -d
+      environment:
+        PROMETHEUS_VERSION: "{{ prometheus_version }}"
+        GRAFANA_VERSION: "{{ grafana_version }}"
+        ADMIN_PASSWORD: "{{ grafana_password }}"
+        ADMIN_USER: "{{ grafana_user }}"
 
     - name: Allow vagrant user to manage docker
       shell:
