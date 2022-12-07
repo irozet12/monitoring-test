@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./provisioning", "/vagrant/provisioning"
   config.vm.define "promigraph"
 
-  config.vm.provision "ansible_local" do |ansible|
+  config.vm.provision "ansible" do |ansible|
     ansible.playbook = "provisioning/playbook.yml"
     ansible.extra_vars = {
       node_exporter_ver: "1.1.2",

@@ -66,7 +66,6 @@
       copy:
         src: templates/node_exporter.service
         dest: /etc/systemd/system/node_exporter.service
-        remote_src: yes
         mode: 0600
 
     - name: Enable node_exporter service
@@ -79,6 +78,7 @@
     - name: Deploy prometheus and grafana docker comtainers
       shell:
         cmd: docker compose up -d
+        chdir: /vagrant/provisioning
       environment:
         PROMETHEUS_VERSION: "{{ prometheus_version }}"
         GRAFANA_VERSION: "{{ grafana_version }}"
